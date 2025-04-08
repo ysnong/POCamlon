@@ -1,3 +1,18 @@
+(* ===================================== POKAMLON INTIALIZATION ===================================== *)  
+(* type safety: progress and preservation 
+No crashes or undefined behavior if type-checks pass
+safety makes sure that errors are caught during compilation
+
+progress: Well-typed programs either evaluate or are already done
+ie skills can always be applied if valid or evaluated in steps
+
+preservation: evaluation doesn't break typing
+ie Using a skill on a pokamlon gives another well-typed pokamlon
+
+*)
+
+
+
 (* Type of info fields we can query from a pokamlon *)
 type info_field = 
 | Name
@@ -125,4 +140,4 @@ let handle_event event target =
 
 
 (* ===================================== Skill selection matchup ===================================== *)  
-(* efficient pattern matching by compiling to decision trees *)
+(* efficient pattern matching by compiling to decision trees? *)
