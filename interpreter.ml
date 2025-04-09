@@ -1,11 +1,20 @@
 open Ast
 open Eval_op
 
+type stats = {
+  hp: int;
+  attack: int;
+  defense: int;
+  special_atk: int;
+  special_def: int;
+  speed: int;
+}
+
 type pokerec = {
   name: string;
   ptype: poketype;
   moves: string list;
-  hp: int;
+  stats: stats;
 }
 
 type value =
@@ -47,7 +56,16 @@ let rec eval (env: env) (e: expr) : (env * value) =
     ((x, v) :: env', v)
 
   | PokeMon(name, ptype, moves, hp) ->
-    let poke = { name; ptype; moves; hp } in
+    let poke = { name;
+      ptype;
+      moves;
+      stats = {
+        hp;
+        attack = 55;
+        defense = 40;
+        special_atk = 50;
+        special_def = 50;
+        speed = 90; }} in
     (env, VPokemon poke)
 
   | FieldAccess (e, field) ->
@@ -55,7 +73,7 @@ let rec eval (env: env) (e: expr) : (env * value) =
     (match v with
       | VPokemon p ->  (* Ensure the value is a VPokemon *)
           (match field with
-          | "hp" -> (env', VInt p.hp)  (* Access the hp field *)
+          (*| "hp" -> (env', VInt p.hp)  (* Access the hp field *)*)
           | "name" -> (env', VString p.name)  (* Access the name field *)
           | "ptype" -> (env', VPoketype p.ptype)  (* Convert ptype to string *)
           | "moves" -> (env', VList (List.map (fun m -> VString m) p.moves))  (* Convert moves list to VStrings *)
@@ -65,21 +83,17 @@ let rec eval (env: env) (e: expr) : (env * value) =
   | Battle(e1, e2) ->
     let (env', v1) = eval env e1 in
     let (env'', v2) = eval env' e2 in
-    (match v1, v2 with
-     | VPokemon p1, VPokemon p2 ->
-       let p2_hp_after = p2.hp - 55 (* a pretend damage formula *)
-       in
-         Printf.printf "%s uses %s! %s's HP: %d.\n"
-           p1.name
-           (match p1.moves with
-            | m::_ -> m
-            | [] -> "Struggle")
-           p2.name
-           p2_hp_after;
-         let new_p2 = {p2 with hp = p2_hp_after} in
-         (env'', VPokemon new_p2)
-     | _ ->
-       failwith "battle requires two Pokémon.")
+    (match e1, e2, v1, v2 with
+      | Var _, Var name2, VPokemon p1, VPokemon p2 ->
+          let p2_hp_after = max 0 (p2.stats.hp - 55) in
+          Printf.printf "%s uses %s! %s's HP: %d.\n"
+            p1.name
+            (match p1.moves with | m::_ -> m | [] -> "Struggle")
+            p2.name p2_hp_after;
+          let new_p2 = { p2 with stats = { p2.stats with hp = p2_hp_after } } in
+          let updated_env = (name2, VPokemon new_p2) :: List.remove_assoc name2 env'' in
+          (updated_env, VPokemon new_p2)
+      | _ -> failwith "battle requires two Pokémon.")
   | Print e ->  (* Handling Print expression *)
     let (_, v) = eval env e in  (* Evaluate the expression inside Print *)
     (match v with
@@ -87,3 +101,36 @@ let rec eval (env: env) (e: expr) : (env * value) =
     | VString s -> Printf.printf "%s\n" s; (env, VString s)  (* Print string *)
     | VBool b -> Printf.printf "%s\n" s; (env, VString s)
     | _ -> failwith "Print expects an integer or string.")  (* Error for other types *)
+  
+  | StatAll e1 ->
+  let (_, v) = eval env e1 in
+  (match v with
+    | VPokemon p ->
+      Printf.printf
+        "%s's stats:\nHP: %d, Atk: %d, Def: %d, SpAtk: %d, SpDef: %d, Speed: %d\n"
+        p.name p.stats.hp p.stats.attack p.stats.defense
+        p.stats.special_atk p.stats.special_def p.stats.speed;
+      (env, VInt 0)
+    | _ -> failwith "StatAll expects a Pokémon")
+
+  | StatField (e1, field) ->
+    let (_, v) = eval env e1 in
+    (match v with
+      | VPokemon p ->
+        let stat_val =
+          match field with
+          | HP -> p.stats.hp
+          | Attack -> p.stats.attack
+          | Defense -> p.stats.defense
+          | SpecialAtk -> p.stats.special_atk
+          | SpecialDef -> p.stats.special_def
+          | Speed -> p.stats.speed
+        in
+        Printf.printf "%s's %s: %d\n"
+          p.name
+          (match field with
+            | HP -> "HP" | Attack -> "Attack" | Defense -> "Defense"
+            | SpecialAtk -> "SpecialAtk" | SpecialDef -> "SpecialDef" | Speed -> "Speed")
+          stat_val;
+        (env, VInt stat_val)
+      | _ -> failwith "StatField expects a Pokémon")

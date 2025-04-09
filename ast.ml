@@ -6,6 +6,14 @@ type poketype =
   | Fire
   (* etc. *)
 
+type stat_field =
+  | HP
+  | Attack
+  | Defense
+  | SpecialAtk
+  | SpecialDef
+  | Speed
+  
 type expr =
   | Int of int
   | Var of string
@@ -17,3 +25,5 @@ type expr =
   | FieldAccess of expr * string 
   | Battle of expr * expr
   | Print of expr
+  | StatAll of expr
+  | StatField of expr * stat_field
