@@ -50,17 +50,12 @@ type 'a nature =
 (* Type of skill: Physical uses attack, Special uses special_atk *)
 type skill_type =
 | Physical
-| Special
+| Special (* Depending on their type*)
   
 
-(*
-  A pocamlon is a parametric type, where:
-  - 'a can be any type for ptype (e.g., pocamlon_type, string, etc.)
-  - nature is recursive and can stack or nest
-*)
 type 'a pocamlon = {
   name: string;
-  ptype: 'a;
+  ptype: string;
   stats: stats;
   nature: 'a nature;
   skills: 'a skill list;
@@ -84,7 +79,8 @@ and 'a skill = {
 
 (* ===================================== Pokebag/Evolution Section ===================================== *)
 
-type 'a pocalbag = 'a pocamlon list
+type 'a pocamlbag = 'a pocamlon list
+
 
 type 'a evolution_tree =
   | Base of 'a pocamlon
@@ -95,6 +91,52 @@ let rec count_pocamlon_in_tree (tree : 'a evolution_tree) : int =
   | Base _ -> 1
   | Evolved (_, evolutions) ->
       1 + List.fold_left (fun acc e -> acc + count_pocamlon_in_tree e) 0 evolutions
+
+(*
+Find the first pocamlon with enough EXP to evolve
+*)
+let rec find_ready (tree : 'a evolution_tree) : 'a pocamlon option =
+  match tree with
+  | Base p
+  | Evolved (p,[]) -> if p.exp >= 100 then Some p else None
+  | Evolved (_, evolutions) -> List.find_map find_ready evolutions
+
+type stat_field = HP | Attack | Defense | SpecialAtk | SpecialDef | Speed
+
+type 'a filter_criteria =
+  | NameStartsWith of char
+  | HasType of string
+  | StatAbove of stat_field * int
+  | HasSkill of string
+  | ExpAbove of int
+  | ExpBelow of int
+  (* Nature? Evolution? *)
+
+let get_stat stat_field stats =
+  match stat_field with
+  | HP -> stats.hp
+  | Attack -> stats.attack
+  | Defense -> stats.defense
+  | SpecialAtk -> stats.special_atk
+  | SpecialDef -> stats.special_def
+  | Speed -> stats.speed
+
+let filter_pocamlbag (criteria : 'a filter_criteria) (bag : 'a pocamlon list) : 'a pocamlon list =
+  match criteria with
+  | NameStartsWith c ->
+      List.filter (fun p -> String.length p.name > 0 && p.name.[0] = c) bag
+  | HasType target_type -> (* type is string *)
+      List.filter (fun p -> p.ptype = target_type) bag
+  | StatAbove (field, threshold) ->
+      List.filter (fun p -> get_stat field p.stats > threshold) bag
+  | HasSkill skill_name ->
+      List.filter (fun p ->
+        List.exists (fun s -> s.skill_name = skill_name) p.skills
+      ) bag
+  | ExpAbove min_exp ->
+      List.filter (fun p -> p.exp > min_exp) bag
+  | ExpBelow max_exp ->
+      List.filter (fun p -> p.exp < max_exp) bag
 
 (* ===================================== pocamlon Section ===================================== *)
 
@@ -114,13 +156,19 @@ let rec string_of_nature (n : 'a nature) : string =
   | Base _ -> "Base"
   | Nested inner -> "Nested(" ^ string_of_nature inner ^ ")"
 
+(*
+Helper function: Convert a single skill into a readable string
+*)
 let string_of_skill (s : 'a skill) : string =
   Printf.sprintf "%s (Lv.%d, %s, Power: %d)"
     s.skill_name
     s.level
     (match s.skill_type with Physical -> "Physical" | Special -> "Special")
     s.base_power
-
+  
+(*
+Helper function: Convert a list of skills into a readable string
+*)
 let string_of_skills skills =
   match skills with
   | [] -> "No skills"
@@ -128,7 +176,6 @@ let string_of_skills skills =
     skills
     |> List.map string_of_skill
     |> String.concat ", "
-
 (*
 Get a specific piece of information from a pocamlon.
 Since we don't know how to convert the polymorphic ptype ('a) into a string,
@@ -147,13 +194,12 @@ let get_pocamlon_info (p : 'a pocamlon) (field : info_field) : string =
     | Some _ -> "Can evolve")
 
 
-
 let gain_exp (amount : int) (p : 'a pocamlon) : 'a pocamlon =
   { p with exp = p.exp + amount }
 
 let evolve_if_ready (p : 'a pocamlon) : 'a pocamlon =
   match p.evolution with
-  | Some evolve when p.exp >= 100 -> evolve p  (* Example threshold *)
+  | Some evolve when p.exp >= 100 -> evolve p  (* can change threshold *)
   | _ -> p
 
 (* ===================================== Event Section ===================================== *)
