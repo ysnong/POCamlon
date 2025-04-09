@@ -67,7 +67,7 @@ type nature =
   | Serious
 
 
-(* User can use to define Pokedex or backpack *)
+(* User can use to define Pokedex or backpack or evol map*)
 (* Sample N-ary tree *)
 (* let my_tree = 
   Node ("root", [
@@ -80,8 +80,6 @@ type nature =
     ]);
     Node ("var", [NLeaf 1000])
   ]) *)
-
-
 type 'a tree = 
   | Leaf of 'b
   | Node of 'a * 'a tree list
@@ -97,13 +95,21 @@ let rec tree_length tree =
   | Node (_, children) -> 
       1 + List.fold_left (fun acc child -> acc + tree_length child) 0 children
 
+(* evol = find in pokedex or evol-map for next form of evolution*)
 
+(* swap pokemon = subsitute *)
+
+(* improper execution of battle order = exception *)
+exception BadBattleOrder of string 
+
+
+(* order = exp *)
 type order = 
     | Attack
     | ETC.
 
 
-
+(* battle = eval  *)
 (* let rec battle (some pokemon list) (battle order)=  *)
 
 
