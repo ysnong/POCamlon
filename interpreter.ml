@@ -68,21 +68,17 @@ let rec eval (env: env) (e: expr) : (env * value) =
   | Battle(e1, e2) ->
     let (env', v1) = eval env e1 in
     let (env'', v2) = eval env' e2 in
-    (match v1, v2 with
-     | VPokemon p1, VPokemon p2 ->
-       let p2_hp_after = p2.stats.hp - 55 (* a pretend damage formula *)
-       in
-         Printf.printf "%s uses %s! %s's HP: %d.\n"
-           p1.name
-           (match p1.moves with
-            | m::_ -> m
-            | [] -> "Struggle")
-           p2.name
-           p2_hp_after;
-         let new_p2 = {p2 with stats = { p2.stats with hp = p2_hp_after }} in
-         (env'', VPokemon new_p2)
-     | _ ->
-       failwith "battle requires two Pokémon.")
+    (match e1, e2, v1, v2 with
+      | Var _, Var name2, VPokemon p1, VPokemon p2 ->
+          let p2_hp_after = max 0 (p2.stats.hp - 55) in
+          Printf.printf "%s uses %s! %s's HP: %d.\n"
+            p1.name
+            (match p1.moves with | m::_ -> m | [] -> "Struggle")
+            p2.name p2_hp_after;
+          let new_p2 = { p2 with stats = { p2.stats with hp = p2_hp_after } } in
+          let updated_env = (name2, VPokemon new_p2) :: List.remove_assoc name2 env'' in
+          (updated_env, VPokemon new_p2)
+      | _ -> failwith "battle requires two Pokémon.")
   | Print e ->  (* Handling Print expression *)
     let (_, v) = eval env e in  (* Evaluate the expression inside Print *)
     (match v with
