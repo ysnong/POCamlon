@@ -8,6 +8,8 @@
 %token <string> STRING
 %token <string> IDENT
 %token EQ LBRACKET RBRACKET LPAREN RPAREN COMMA
+%token DOT
+%token PRINT
 %token EOF
 
 %start <expr> main
@@ -26,8 +28,9 @@ expr:
 | POKEMON STRING type_name LBRACKET move_list RBRACKET INT 
   { PokeMon($2, $3, $5, $7) }
 | BATTLE expr expr { Battle($2, $3) }
-
+| expr DOT IDENT { FieldAccess($1, $3) }
 | LPAREN expr RPAREN { $2 }
+| PRINT expr { Print $2 }
 
 type_name:
 | ELECTRIC { Electric }

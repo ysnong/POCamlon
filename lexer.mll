@@ -12,6 +12,7 @@ rule token = parse
 | "Electric"           { ELECTRIC }
 | "Water"              { WATER }
 | "Fire"               { FIRE }
+| "print"              { PRINT } 
 
 | '"' [^ '"']* '"' as s  { 
     (* Grab string without quotes *)
@@ -29,7 +30,7 @@ rule token = parse
 | ','   { COMMA }
 | '('   { LPAREN }
 | ')'   { RPAREN }
-
+| '.'   { DOT }
 | eof { EOF }
 
 | _ as c { raise (Lexing_error (Printf.sprintf "Unexpected character: %c" c)) }
