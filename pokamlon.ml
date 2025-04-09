@@ -9,18 +9,22 @@ ie skills can always be applied if valid or evaluated in steps
 preservation: evaluation doesn't break typing
 ie Using a skill on a pokamlon gives another well-typed pokamlon
 
+pokebag = stores pokamlon
+evolution holds tree
 *)
 
 
-
-(* Type of info fields we can query from a pokamlon *)
+(* Pokamlon info *)
 type info_field = 
 | Name
 | PType
 | Stats
 | Nature
+| Skills
+| Exp
+| Evolution
 
-(* Stats that define a pokamlon's battle performance *)
+(* Pokamlon stats *)
 type stats = {
   hp: int;
   attack: int;
@@ -63,6 +67,7 @@ type 'a pokamlon = {
   exp: int;
   evolution: ('a pokamlon -> 'a pokamlon) option; (* Optional Evolution *)
 } 
+
 (*
 A polymorphic skill type:
 - 'a represents the same type used in the pokamlon's ptype
@@ -77,6 +82,20 @@ and 'a skill = {
   level: int;
   effects: 'a pokamlon -> 'a pokamlon -> 'a pokamlon;
 }
+
+(* ===================================== Pokebag/Evolution Section ===================================== *)
+
+type 'a pokebag = 'a pokamlon list
+
+type 'a evolution_tree =
+  | Base of 'a pokamlon
+  | Evolved of 'a pokamlon * 'a evolution_tree list
+
+let rec count_pokamlon_in_tree (tree : 'a evolution_tree) : int =
+  match tree with
+  | Base _ -> 1
+  | Evolved (_, evolutions) ->
+      1 + List.fold_left (fun acc e -> acc + count_pokamlon_in_tree e) 0 evolutions
 
 (* ===================================== Pokamlon Section ===================================== *)
 
@@ -96,6 +115,21 @@ let rec string_of_nature (n : 'a nature) : string =
   | Base _ -> "Base"
   | Nested inner -> "Nested(" ^ string_of_nature inner ^ ")"
 
+let string_of_skill (s : 'a skill) : string =
+  Printf.sprintf "%s (Lv.%d, %s, Power: %d)"
+    s.skill_name
+    s.level
+    (match s.skill_type with Physical -> "Physical" | Special -> "Special")
+    s.base_power
+
+let string_of_skills skills =
+  match skills with
+  | [] -> "No skills"
+  | _ ->
+    skills
+    |> List.map string_of_skill
+    |> String.concat ", "
+
 (*
 Get a specific piece of information from a pokamlon.
 Since we don't know how to convert the polymorphic ptype ('a) into a string,
@@ -107,6 +141,13 @@ let get_pokamlon_info (p : 'a pokamlon) (field : info_field) : string =
   | PType -> "<ptype value>"  (* can't convert 'a to string safely *)
   | Stats -> string_of_stats p.stats
   | Nature -> string_of_nature p.nature
+  | Skills -> string_of_skills p.skills
+  | Exp -> string_of_int p.exp
+  | Evolution -> (match p.evolution with
+    | None -> "No evolution"
+    | Some _ -> "Can evolve")
+
+
 
 let gain_exp (amount : int) (p : 'a pokamlon) : 'a pokamlon =
   { p with exp = p.exp + amount }
@@ -134,9 +175,6 @@ let handle_event event target =
     print_endline (target.name ^ "is now" ^ s);
     target
   | Custome f -> f target
-
-(* ===================================== Inventory Section ===================================== *)  
-(* Inventory with items, potions, pokemon *)
 
 
 (* ===================================== Skill selection matchup ===================================== *)  
