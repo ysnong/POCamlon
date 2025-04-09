@@ -1,4 +1,4 @@
-(* ===================================== pocalmon INTIALIZATION ===================================== *)  
+(* ===================================== pocamlon INTIALIZATION ===================================== *)  
 (* type safety: progress and preservation 
 No crashes or undefined behavior if type-checks pass
 safety makes sure that errors are caught during compilation
@@ -7,14 +7,14 @@ progress: Well-typed programs either evaluate or are already done
 ie skills can always be applied if valid or evaluated in steps
 
 preservation: evaluation doesn't break typing
-ie Using a skill on a pocalmon gives another well-typed pokamlon
+ie Using a skill on a pocamlon gives another well-typed pokamlon
 
-pokebag = stores pocalmon in list
+pokebag = stores pocamlon in list
 evolution holds tree
 *)
 
 
-(* Pocalmon info *)
+(* pocamlon info *)
 type info_field = 
 | Name
 | PType
@@ -24,7 +24,7 @@ type info_field =
 | Exp
 | Evolution
 
-(* Pocalmon stats *)
+(* pocamlon stats *)
 type stats = {
   hp: int;
   attack: int;
@@ -54,22 +54,22 @@ type skill_type =
   
 
 (*
-  A pocalmon is a parametric type, where:
-  - 'a can be any type for ptype (e.g., pocalmon_type, string, etc.)
+  A pocamlon is a parametric type, where:
+  - 'a can be any type for ptype (e.g., pocamlon_type, string, etc.)
   - nature is recursive and can stack or nest
 *)
-type 'a pocalmon = {
+type 'a pocamlon = {
   name: string;
   ptype: 'a;
   stats: stats;
   nature: 'a nature;
   skills: 'a skill list;
   exp: int;
-  evolution: ('a pocalmon -> 'a pocalmon) option; (* Optional Evolution *)
+  evolution: ('a pocamlon -> 'a pocamlon) option; (* Optional Evolution *)
 } 
 
 (*
-- 'a represents the same type used in the pocalmon's ptype
+- 'a represents the same type used in the pocamlon's ptype
 - skill_name: name of the move
 - power: base power of the move
 - effect: function that takes a user and a target, returning the modified target
@@ -79,24 +79,24 @@ and 'a skill = {
   skill_type: skill_type;
   base_power: int;
   level: int;
-  effects: 'a pocalmon -> 'a pocalmon -> 'a pocalmon;
+  effects: 'a pocamlon -> 'a pocamlon -> 'a pocamlon;
 }
 
 (* ===================================== Pokebag/Evolution Section ===================================== *)
 
-type 'a pocalbag = 'a pocalmon list
+type 'a pocalbag = 'a pocamlon list
 
 type 'a evolution_tree =
-  | Base of 'a pocalmon
-  | Evolved of 'a pocalmon * 'a evolution_tree list
+  | Base of 'a pocamlon
+  | Evolved of 'a pocamlon * 'a evolution_tree list
 
-let rec count_pocalmon_in_tree (tree : 'a evolution_tree) : int =
+let rec count_pocamlon_in_tree (tree : 'a evolution_tree) : int =
   match tree with
   | Base _ -> 1
   | Evolved (_, evolutions) ->
-      1 + List.fold_left (fun acc e -> acc + count_pocalmon_in_tree e) 0 evolutions
+      1 + List.fold_left (fun acc e -> acc + count_pocamlon_in_tree e) 0 evolutions
 
-(* ===================================== pocalmon Section ===================================== *)
+(* ===================================== pocamlon Section ===================================== *)
 
 (* 
 Helper function: Convert stats into a readable string 
@@ -130,11 +130,11 @@ let string_of_skills skills =
     |> String.concat ", "
 
 (*
-Get a specific piece of information from a pocalmon.
+Get a specific piece of information from a pocamlon.
 Since we don't know how to convert the polymorphic ptype ('a) into a string,
 we use a placeholder for now.
 *)
-let get_pocalmon_info (p : 'a pocalmon) (field : info_field) : string =
+let get_pocamlon_info (p : 'a pocamlon) (field : info_field) : string =
   match field with
   | Name -> p.name
   | PType -> "<ptype value>"  (* can't convert 'a to string safely *)
@@ -148,10 +148,10 @@ let get_pocalmon_info (p : 'a pocalmon) (field : info_field) : string =
 
 
 
-let gain_exp (amount : int) (p : 'a pocalmon) : 'a pocalmon =
+let gain_exp (amount : int) (p : 'a pocamlon) : 'a pocamlon =
   { p with exp = p.exp + amount }
 
-let evolve_if_ready (p : 'a pocalmon) : 'a pocalmon =
+let evolve_if_ready (p : 'a pocamlon) : 'a pocamlon =
   match p.evolution with
   | Some evolve when p.exp >= 100 -> evolve p  (* Example threshold *)
   | _ -> p
