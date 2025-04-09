@@ -69,7 +69,6 @@ type 'a pocalmon = {
 } 
 
 (*
-A polymorphic skill type:
 - 'a represents the same type used in the pocalmon's ptype
 - skill_name: name of the move
 - power: base power of the move
@@ -85,7 +84,7 @@ and 'a skill = {
 
 (* ===================================== Pokebag/Evolution Section ===================================== *)
 
-type 'a pokebag = 'a pocalmon list
+type 'a pocalbag = 'a pocalmon list
 
 type 'a evolution_tree =
   | Base of 'a pocalmon
