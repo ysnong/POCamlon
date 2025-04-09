@@ -1,0 +1,3 @@
+let pikachu = PokeMon "Pikachu" Electric ["Thunderbolt"] 100
+let squirtle = PokeMon "Squirtle" Water ["Tackle"] 90
+let squirtle = battle pikachu squirtle
