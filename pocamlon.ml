@@ -222,6 +222,94 @@ let handle_event event target =
     target
   | Custome f -> f target
 
+(* ===================================== Pattern Matching/Inference? ===================================== *)  
+type pattern =
+  | PVar of string
+  | PInt of int
+  | PBool of bool
+  | PWild                     (* _ *)
+  | PStat of stat_field * pattern
+  | PName of string           (* match name field *)
+  | PAnd of pattern * pattern (* pattern1 & pattern2 *)
 
-(* ===================================== Skill selection matchup ===================================== *)  
-(* efficient pattern matching by compiling to decision trees? *)
+type expr =
+| Var of string
+| Int of int
+| Bool of bool
+| Fn of string * expr            (* fun x -> expr *)
+| Apply of expr * expr           (* f x *)
+| Let of string * expr * expr    (* let x = e1 in e2 *)
+| GetStat of stat_field * expr   (* p.stats.hp, etc. *)
+| ExpOf of expr                  (* get p.exp *)
+| Comparison of expr * expr      (* >, =, < *)
+| Match of expr * (pattern * expr) list
+
+type tp =
+| TInt
+| TBool
+| TPokamlon
+| TArrow of tp * tp
+| TVar of string  (* Type variable for inference *)
+
+type ctx = (string * tp) list
+
+
+let rec infer_pattern (t : tp) (p : pattern) : (string * tp) list =
+  match p with
+  | PVar x -> [(x, t)]
+  | PInt _ -> if t = TInt then [] else failwith "Expected int in pattern"
+  | PBool _ -> if t = TBool then [] else failwith "Expected bool in pattern"
+  | PWild -> []
+  | PName name -> if t = TPokamlon then [] else failwith "Expected pokamlon for name match"
+  | PStat (_, subpat) ->
+      if t = TPokamlon then infer_pattern TInt subpat
+      else failwith "Expected Pokamlon for stat match"
+  | PAnd (p1, p2) ->
+      infer_pattern t p1 @ infer_pattern t p2
+
+let counter = ref 0
+let fresh_var () =
+  let n = !counter in
+  counter := n + 1;
+  "'a" ^ string_of_int n
+
+let rec infer (ctx : ctx) (e : expr) : tp =
+  match e with
+  | Int _ -> TInt
+  | Bool _ -> TBool
+  | Var x -> List.assoc x ctx
+  | GetStat (_, _) -> TInt
+  | ExpOf _ -> TInt
+  | Comparison (e1, e2) ->
+      let t1 = infer ctx e1 in
+      let t2 = infer ctx e2 in
+      if t1 = t2 then TBool else failwith "Type mismatch in comparison"
+  | Fn (x, body) ->
+      let tx = TVar (fresh_var ()) in
+      let t_body = infer ((x, tx) :: ctx) body in
+      TArrow (tx, t_body)
+  | Apply (e1, e2) ->
+      let tf = infer ctx e1 in
+      let tx = infer ctx e2 in
+      (match tf with
+        | TArrow (a, b) when a = tx -> b
+        | TArrow (_, _) -> failwith "Function argument mismatch"
+        | _ -> failwith "Applied non-function")
+  | Let (x, e1, e2) ->
+      let t1 = infer ctx e1 in
+      infer ((x, t1) :: ctx) e2
+  | Match (e, branches) ->
+      let t_matched = infer ctx e in
+      let rec infer_branches = function
+        | [] -> failwith "Empty match"
+        | (pat, expr) :: rest ->
+            let new_ctx = infer_pattern t_matched pat @ ctx in
+            let t_expr = infer new_ctx expr in
+            match rest with
+            | [] -> t_expr
+            | _ ->
+                let t_rest = infer_branches rest in
+                if t_expr = t_rest then t_expr
+                else failwith "Match branches return different types"
+      in
+      infer_branches branches
