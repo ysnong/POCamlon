@@ -1,0 +1,24 @@
+type token =
+    WATER
+  | STRING of string
+  | RPAREN
+  | RBRACKET
+  | POKEMON
+  | LPAREN
+  | LET
+  | LBRACKET
+  | INT of int
+  | IDENT of string
+  | FIRE
+  | EQ
+  | EOF
+  | ELECTRIC
+  | COMMA
+  | BATTLE
+val menhir_begin_marker : int
+val xv_type_name : Ast.poketype
+val xv_move_list : string list
+val xv_main : Ast.expr
+val xv_expr : Ast.expr
+val xv_command : Ast.expr
+val menhir_end_marker : int
