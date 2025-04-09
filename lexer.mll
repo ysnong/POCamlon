@@ -13,6 +13,9 @@ rule token = parse
 | "Water"              { WATER }
 | "Fire"               { FIRE }
 | "print"              { PRINT } 
+| "if"                 { IF } 
+| "then"               { THEN } 
+| "else"               { ELSE } 
 
 | '"' [^ '"']* '"' as s  { 
     (* Grab string without quotes *)
@@ -30,6 +33,12 @@ rule token = parse
 | ','   { COMMA }
 | '('   { LPAREN }
 | ')'   { RPAREN }
+| "+"    { PLUS }
+| "-"    { MINUS }
+| "*"    { TIMES }
+| "<"    { LT }
+| ">"    { GT }
+| "=="   { EQQ }
 | '.'   { DOT }
 | eof { EOF }
 

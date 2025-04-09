@@ -8,9 +8,16 @@
 %token <string> STRING
 %token <string> IDENT
 %token EQ LBRACKET RBRACKET LPAREN RPAREN COMMA
+%token LT GT PLUS MINUS TIMES EQQ
 %token DOT
 %token PRINT
+%token IF THEN ELSE
 %token EOF
+
+%left EQQ
+%left LT GT
+%left PLUS MINUS
+%left TIMES
 
 %start <expr> main
 %%
@@ -31,6 +38,13 @@ expr:
 | expr DOT IDENT { FieldAccess($1, $3) }
 | LPAREN expr RPAREN { $2 }
 | PRINT expr { Print $2 }
+| expr PLUS expr   { Primop("+", $1, $3) }
+| expr MINUS expr  { Primop("-", $1, $3) }
+| expr TIMES expr  { Primop("*", $1, $3) }
+| expr LT expr     { Primop("<", $1, $3) }
+| expr GT expr     { Primop(">", $1, $3) }
+| expr EQQ expr     { Primop("==", $1, $3) }
+| IF expr THEN expr ELSE expr  { If($2, $4, $6) }
 
 type_name:
 | ELECTRIC { Electric }
