@@ -1,3 +1,9 @@
+(* user defined typed
+tree case check
+generalization
+
+normal presentation time, and normal length of report, but a bit more in the coding (aka tree case check) *)
+
 type pokamlon_type =
   | Normal
   | Fighting
@@ -59,3 +65,52 @@ type nature =
   | Jolly
   | Naive
   | Serious
+
+
+(* User can use to define Pokedex or backpack *)
+(* Sample N-ary tree *)
+(* let my_tree = 
+  Node ("root", [
+    Node ("home", [
+      Node ("user", [
+        Leaf 2000;
+        Node ("docs", [NLeaf 150; NLeaf 2500])
+      ]);
+      Node ("guest", [NLeaf 500])
+    ]);
+    Node ("var", [NLeaf 1000])
+  ]) *)
+
+
+type 'a tree = 
+  | Leaf of 'b
+  | Node of 'a * 'a tree list
+
+type 'a my_list =
+| Nil
+| Cons of 'a * 'a my_list
+
+
+let rec tree_length tree =
+  match tree with
+  | Leaf _ -> 1
+  | Node (_, children) -> 
+      1 + List.fold_left (fun acc child -> acc + tree_length child) 0 children
+
+
+type order = 
+    | Attack
+    | ETC.
+
+
+
+(* let rec battle (some pokemon list) (battle order)=  *)
+
+
+
+
+
+
+
+
+
