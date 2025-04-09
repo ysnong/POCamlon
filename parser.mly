@@ -4,6 +4,8 @@
 
 %token LET BATTLE POKEMON
 %token ELECTRIC WATER FIRE
+%token STATALL STATFIELD
+%token HP ATTACK DEFENSE SPECIALATK SPECIALDEF SPEED
 %token <int> INT
 %token <string> STRING
 %token <string> IDENT
@@ -31,6 +33,8 @@ expr:
 | expr DOT IDENT { FieldAccess($1, $3) }
 | LPAREN expr RPAREN { $2 }
 | PRINT expr { Print $2 }
+| STATALL expr { StatAll($2) }
+| STATFIELD expr stat_field { StatField($2, $3) }
 
 type_name:
 | ELECTRIC { Electric }
@@ -41,3 +45,11 @@ move_list:
 | STRING { [$1] }
 | move_list COMMA STRING { $1 @ [$3] }
 | /* empty */ { [] }    (* allow an empty list *)
+
+stat_field:
+| HP { HP }
+| ATTACK { Attack }
+| DEFENSE { Defense }
+| SPECIALATK { SpecialAtk }
+| SPECIALDEF { SpecialDef }
+| SPEED { Speed }
