@@ -1,5 +1,6 @@
 open Ast
 open Eval_op
+open Global_env
 
 let rec string_of_value t =
   match t with
@@ -122,3 +123,18 @@ let rec eval (env: env) (e: expr) : (env * value) =
   | TypeOf e ->
     let t = Infer.infer !type_env e in
     (env, VString (Infer.string_of_typ t))
+
+  | TypeDecl(name, constructors) ->
+    user_types := StringMap.add name constructors !user_types;
+    Printf.printf "Defined type %s = %s\n" name (String.concat " | " constructors);
+    (env, VString name)
+
+  | Constructor s ->
+    (* Find the type s belongs to *)
+    let found_type =
+      StringMap.bindings !user_types
+      |> List.find_opt (fun (_, ctors) -> List.mem s ctors)
+    in
+    (match found_type with
+      | Some (_, _) -> (env, VString s)
+      | None -> failwith ("Unknown constructor: " ^ s))

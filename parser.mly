@@ -1,5 +1,6 @@
 %{
   open Ast
+  open Global_env
 %}
 
 %token LET BATTLE POKEMON
@@ -18,6 +19,7 @@
 %token TYPEOF
 %token IN
 %token <bool> BOOL
+%token TYPE BAR
 
 %left EQQ
 %left LT GT
@@ -41,8 +43,17 @@ expr:
 
 simple_expr:
 | INT { Int $1 }
-| IDENT { Var $1 }
-| POKEMON STRING type_name LBRACKET move_list RBRACKET INT { PokeMon($2, $3, $5, $7) }
+| IDENT {
+    match $1 with
+    | "true" -> Bool true
+    | "false" -> Bool false
+    | s ->
+      if List.exists (fun (_, ctors) -> List.mem s ctors) (StringMap.bindings !Global_env.user_types)
+      then Constructor s
+      else Var s
+  }
+| POKEMON STRING type_name LBRACKET move_list RBRACKET INT
+  { PokeMon($2, $3, $5, $7) }
 | BATTLE expr expr { Battle($2, $3) }
 | LPAREN expr RPAREN { $2 }
 | PRINT expr { Print $2 }
@@ -59,6 +70,11 @@ simple_expr:
 | LET IDENT EQ expr IN expr { Let($2, $4, $6) }
 | BOOL { Bool $1 }
 | STRING { String $1 }
+| TYPE IDENT EQ constructor_list { TypeDecl($2, $4) }
+
+constructor_list:
+  | IDENT { [$1] }
+  | constructor_list BAR IDENT { $1 @ [$3] }
 
 type_name:
 | ELECTRIC { Electric }
