@@ -1,0 +1,16 @@
+let id = fun x -> x
+id 5
+id "pikachu"
+typeof (id 5)
+
+let pikachu = PokeMon "Pikachu" Electric ["Thunderbolt"] 100
+let squirtle = PokeMon "Squirtle" Water ["Water Gun"] 60
+
+let apply_twice = fun f -> fun x -> f (f x)
+typeof apply_twice
+let plus_one = fun x -> x + 1
+apply_twice plus_one 5
+
+let summon_pikachu = fun x -> pikachu
+typeof summon_pikachu
+summon_pikachu squirtle

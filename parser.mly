@@ -35,15 +35,15 @@ command:
 | expr { $1 }
 
 expr:
-| simple_expr { $1 }
+| expr DOT IDENT { FieldAccess($1, $3) }
 | expr simple_expr { App($1, $2) }
+| simple_expr { $1 }
 
 simple_expr:
 | INT { Int $1 }
 | IDENT { Var $1 }
 | POKEMON STRING type_name LBRACKET move_list RBRACKET INT { PokeMon($2, $3, $5, $7) }
 | BATTLE expr expr { Battle($2, $3) }
-| simple_expr DOT IDENT { FieldAccess($1, $3) }
 | LPAREN expr RPAREN { $2 }
 | PRINT expr { Print $2 }
 | simple_expr PLUS simple_expr { Primop("+", $1, $3) }

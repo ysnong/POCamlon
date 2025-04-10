@@ -40,8 +40,10 @@ let rec eval (env: env) (e: expr) : (env * value) =
     (env, eval_op op v1 v2)
 
   | Let(x, rhs, _) ->
-    let (_, v) = eval env rhs in
-    ((x, v) :: env, v)
+      let (_, v) = eval env rhs in
+      let t = Infer.infer !type_env rhs in
+      type_env := Infer.StringMap.add x t !type_env;
+      ((x, v) :: env, v)
 
   | PokeMon(name, ptype, moves, hp) ->
     let poke = {name; ptype; moves; hp; 
@@ -119,5 +121,4 @@ let rec eval (env: env) (e: expr) : (env * value) =
 
   | TypeOf e ->
     let t = Infer.infer !type_env e in
-    Printf.printf "[DEBUG] Type inferred: %s\n" (Infer.string_of_typ t);
     (env, VString (Infer.string_of_typ t))
