@@ -26,10 +26,11 @@ type value =
   | VPoketype of poketype
   | VList of value list
   | VPokemon of pokerec
+  | VFun of string * expr * env
 
-type env = (string * value) list
+and env = (string * value) list
   
-type expr =
+and expr =
   | Int of int
   | Var of string
   | Bool of bool
@@ -41,3 +42,5 @@ type expr =
   | Battle of expr * expr
   | Print of expr
   | StatAll of expr
+  | Fun of string * expr    (* fun x -> expr *)
+  | App of expr * expr      (* function call: f x *)

@@ -14,6 +14,7 @@
 %token PRINT
 %token IF THEN ELSE
 %token EOF
+%token FUN ARROW
 
 %left EQQ
 %left LT GT
@@ -47,6 +48,8 @@ expr:
 | expr EQQ expr     { Primop("==", $1, $3) }
 | IF expr THEN expr ELSE expr  { If($2, $4, $6) }
 | STATALL expr { StatAll($2) }
+| FUN IDENT ARROW expr { Fun($2, $4) }
+| expr expr            { App($1, $2) }
 
 
 type_name:

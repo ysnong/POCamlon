@@ -1,6 +1,16 @@
 open Ast
 open Eval_op
 
+let string_of_value t =
+  match t with
+  | VInt n -> string_of_int n
+  | VBool b -> string_of_bool b
+  | VString s -> s
+  | VFun _ -> "<function>"
+  | VPokemon p -> p.name
+  | VList _ -> "haha"
+  | VPoketype _ -> "<type>"
+
 let rec eval (env: env) (e: expr) : (env * value) =
   match e with
 
@@ -26,8 +36,8 @@ let rec eval (env: env) (e: expr) : (env * value) =
     (env, eval_op op v1 v2)
 
   | Let(x, rhs, _) ->
-    let (env', v) = eval env rhs in
-    ((x, v) :: env', v)
+    let (_, v) = eval env rhs in
+    ((x, v) :: env, v)
 
   | PokeMon(name, ptype, moves, hp) ->
     let poke = {name; ptype; moves; hp; 
@@ -88,3 +98,16 @@ let rec eval (env: env) (e: expr) : (env * value) =
         p.special_atk p.special_def p.speed;
       (env, VInt 0)
     | _ -> failwith "StatAll expects a Pokémon")
+
+  | Fun(param, body) ->
+    (env, VFun(param, body, env))
+  
+  | App(e1, e2) ->
+    let (_, v1) = eval env e1 in
+    let (_, v2) = eval env e2 in
+    (match v1 with
+     | VFun(param, body, closure_env) ->
+         let new_env = (param, v2) :: closure_env in
+         let (_, result) = eval new_env body in
+         (env, result)
+     | _ -> failwith "Trying to apply non-function")

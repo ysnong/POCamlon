@@ -11,7 +11,8 @@ let rec repl env =
     else
       let lexbuf = Lexing.from_string line in
       let ast = Parser.main Lexer.token lexbuf in
-      let (env', _) = eval env ast in
+      let (env', v) = eval env ast in
+      print_endline (Interpreter.string_of_value v);
       repl env'
   with
   | End_of_file ->

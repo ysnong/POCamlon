@@ -17,6 +17,8 @@ rule token = parse
 | "else"               { ELSE } 
 | "print"              { PRINT }
 | "statall"            { STATALL }
+| "fun" { FUN }
+| "->"  { ARROW }
 (* | "hp"                 { HP }
 | "attack"             { ATTACK }
 | "defense"            { DEFENSE }
