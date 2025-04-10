@@ -6,6 +6,3 @@ battle pikachu squirtle
 statall squirtle
 
 type special = Ground | Fly | Sea of 100 in print Sea(100)
-
-type specialtype = Light | Dark | Mysterious in
-print Mysterious
