@@ -26,7 +26,7 @@ type tp =
   | TPoketype of poketype
   | TList of tp list
   | TPokemon of pokerec
-  | TConstr of string * value list
+  | TConstr of string * tp list
 
 type env = (string * tp) list
   

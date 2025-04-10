@@ -1,7 +1,7 @@
 open Ast
 open Eval_op
 
-let rec eval ?(type_env=[]) (env: env) (e: expr) : (env * value) =
+let rec eval ?(type_env=[]) (env: env) (e: expr) : (env * tp) =
   match e with
 
   | Int n ->
@@ -103,4 +103,4 @@ let rec eval ?(type_env=[]) (env: env) (e: expr) : (env * value) =
 
   | Constr (name, args) ->
     let values = List.map (fun e -> snd (eval ~type_env env e)) args in
-    (env, VConstr (name, values))
+    (env, TConstr (name, values))
