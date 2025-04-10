@@ -93,7 +93,7 @@ let rec infer (env : type_env) (e : expr) : tp =
           let _ = unify t1 TInt in
           let _ = unify t2 TInt in
           TInt
-      | "<" | ">" | "=" ->
+      | "<" | ">" | "<=" | ">=" |"==" ->
           let _ = unify t1 t2 in
           TBool
       | _ -> raise (TypeError ("Unknown operator: " ^ op)))

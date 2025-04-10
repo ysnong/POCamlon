@@ -46,8 +46,11 @@ rule token = parse
 | "+"    { PLUS }
 | "-"    { MINUS }
 | "*"    { TIMES }
+| "/"    { DIV }
 | "<"    { LT }
 | ">"    { GT }
+| "<="    { LTEQ }
+| ">="    { GTEQ }
 | "=="   { EQQ }
 | '.'   { DOT }
 | eof { EOF }

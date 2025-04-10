@@ -10,7 +10,7 @@
 %token <string> STRING
 %token <string> IDENT
 %token EQ LBRACKET RBRACKET LPAREN RPAREN COMMA
-%token LT GT PLUS MINUS TIMES EQQ
+%token LT GT LTEQ GTEQ PLUS MINUS TIMES DIV EQQ
 %token DOT
 %token PRINT
 %token IF THEN ELSE
@@ -22,7 +22,7 @@
 %token TYPE BAR
 
 %left EQQ
-%left LT GT
+%left LT GT LTEQ GTEQ
 %left PLUS MINUS
 %left TIMES
 
@@ -60,8 +60,11 @@ simple_expr:
 | simple_expr PLUS simple_expr { Primop("+", $1, $3) }
 | simple_expr MINUS simple_expr { Primop("-", $1, $3) }
 | simple_expr TIMES simple_expr { Primop("*", $1, $3) }
+| simple_expr DIV simple_expr { Primop("/", $1, $3) }
 | simple_expr LT simple_expr { Primop("<", $1, $3) }
 | simple_expr GT simple_expr { Primop(">", $1, $3) }
+| simple_expr LTEQ simple_expr { Primop("<=", $1, $3) }
+| simple_expr GTEQ simple_expr { Primop(">=", $1, $3) }
 | simple_expr EQQ simple_expr { Primop("==", $1, $3) }
 | IF expr THEN expr ELSE expr { If($2, $4, $6) }
 | STATALL expr { StatAll($2) }
