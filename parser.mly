@@ -15,6 +15,7 @@
 %token IF THEN ELSE
 %token EOF
 %token FUN ARROW
+%token TYPEOF
 
 %left EQQ
 %left LT GT
@@ -50,6 +51,7 @@ expr:
 | STATALL expr { StatAll($2) }
 | FUN IDENT ARROW expr { Fun($2, $4) }
 | expr expr            { App($1, $2) }
+| TYPEOF expr     { TypeOf($2) }
 
 
 type_name:

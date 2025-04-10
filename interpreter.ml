@@ -111,3 +111,5 @@ let rec eval (env: env) (e: expr) : (env * value) =
          let (_, result) = eval new_env body in
          (env, result)
      | _ -> failwith "Trying to apply non-function")
+
+  | TypeOf(e) -> failwith "Not Implemented"

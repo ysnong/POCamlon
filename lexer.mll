@@ -19,12 +19,8 @@ rule token = parse
 | "statall"            { STATALL }
 | "fun" { FUN }
 | "->"  { ARROW }
-(* | "hp"                 { HP }
-| "attack"             { ATTACK }
-| "defense"            { DEFENSE }
-| "specialatk"         { SPECIALATK }
-| "specialdef"         { SPECIALDEF }
-| "speed"              { SPEED }  *)
+| "typeof"  { TYPEOF }
+
 
 | '"' [^ '"']* '"' as s  { 
     (* Grab string without quotes *)

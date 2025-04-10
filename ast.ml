@@ -19,6 +19,15 @@ type pokerec = {
   speed: int;
 }
 
+type tp =
+| TInt 
+| TString 
+| TBool 
+| TPoketype 
+| TList of tp
+| TPokemon
+| TVar of string
+
 type value =
   | VInt of int
   | VString of string
@@ -44,3 +53,4 @@ and expr =
   | StatAll of expr
   | Fun of string * expr    (* fun x -> expr *)
   | App of expr * expr      (* function call: f x *)
+  | TypeOf of expr
