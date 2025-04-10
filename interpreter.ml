@@ -30,41 +30,43 @@ let rec eval (env: env) (e: expr) : (env * value) =
     ((x, v) :: env', v)
 
   | PokeMon(name, ptype, moves, hp) ->
-    let poke = { name;
-      ptype;
-      moves;
-      stats = {
-        hp;
-        attack = 55;
-        defense = 40;
-        special_atk = 50;
-        special_def = 50;
-        speed = 90; }} in
+    let poke = {name; ptype; moves; hp; 
+      attack = 55;
+      defense = 40;
+      special_atk = 50;
+      special_def = 50;
+      speed = 90;
+    } in
     (env, VPokemon poke)
 
   | FieldAccess (e, field) ->
-    let (env', v) = eval env e in  (* Evaluate the left-hand side expression (e.g., pikachu) *)
+    let (env', v) = eval env e in  
     (match v with
-      | VPokemon p ->  (* Ensure the value is a VPokemon *)
+      | VPokemon p ->  
           (match field with
-          (*| "hp" -> (env', VInt p.hp)  (* Access the hp field *)*)
-          | "name" -> (env', VString p.name)  (* Access the name field *)
-          | "ptype" -> (env', VPoketype p.ptype)  (* Convert ptype to string *)
-          | "moves" -> (env', VList (List.map (fun m -> VString m) p.moves))  (* Convert moves list to VStrings *)
-          | _ -> failwith ("Unknown field: " ^ field))  (* Handle unknown fields *)
-      | _ -> failwith "Field access on non-Pokemon value")  (* Error if the value is not a VPokemon *)
+          | "hp" -> (env', VInt p.hp)
+          | "attack" -> (env', VInt p.attack)  
+          | "defense" -> (env', VInt p.defense)  
+          | "special_atk" -> (env', VInt p.special_atk)  
+          | "special_def" -> (env', VInt p.special_def) 
+          | "speed" -> (env', VInt p.speed)
+          | "name" -> (env', VString p.name)  
+          | "ptype" -> (env', VPoketype p.ptype)  
+          | "moves" -> (env', VList (List.map (fun m -> VString m) p.moves)) 
+          | _ -> failwith ("Unknown field: " ^ field))  
+      | _ -> failwith "Field access on non-Pokemon value") 
 
   | Battle(e1, e2) ->
     let (env', v1) = eval env e1 in
     let (env'', v2) = eval env' e2 in
     (match e1, e2, v1, v2 with
       | Var _, Var name2, VPokemon p1, VPokemon p2 ->
-          let p2_hp_after = max 0 (p2.stats.hp - 55) in
+          let p2_hp_after = max 0 (p2.hp - 55) in
           Printf.printf "%s uses %s! %s's HP: %d.\n"
             p1.name
             (match p1.moves with | m::_ -> m | [] -> "Struggle")
             p2.name p2_hp_after;
-          let new_p2 = { p2 with stats = { p2.stats with hp = p2_hp_after } } in
+          let new_p2 = { p2 with hp = p2_hp_after } in
           let updated_env = (name2, VPokemon new_p2) :: List.remove_assoc name2 env'' in
           (updated_env, VPokemon new_p2)
       | _ -> failwith "battle requires two Pokémon.")
@@ -82,29 +84,7 @@ let rec eval (env: env) (e: expr) : (env * value) =
     | VPokemon p ->
       Printf.printf
         "%s's stats:\nHP: %d, Atk: %d, Def: %d, SpAtk: %d, SpDef: %d, Speed: %d\n"
-        p.name p.stats.hp p.stats.attack p.stats.defense
-        p.stats.special_atk p.stats.special_def p.stats.speed;
+        p.name p.hp p.attack p.defense
+        p.special_atk p.special_def p.speed;
       (env, VInt 0)
     | _ -> failwith "StatAll expects a Pokémon")
-
-  | StatField (e1, field) ->
-    let (_, v) = eval env e1 in
-    (match v with
-      | VPokemon p ->
-        let stat_val =
-          match field with
-          | HP -> p.stats.hp
-          | Attack -> p.stats.attack
-          | Defense -> p.stats.defense
-          | SpecialAtk -> p.stats.special_atk
-          | SpecialDef -> p.stats.special_def
-          | Speed -> p.stats.speed
-        in
-        Printf.printf "%s's %s: %d\n"
-          p.name
-          (match field with
-            | HP -> "HP" | Attack -> "Attack" | Defense -> "Defense"
-            | SpecialAtk -> "SpecialAtk" | SpecialDef -> "SpecialDef" | Speed -> "Speed")
-          stat_val;
-        (env, VInt stat_val)
-      | _ -> failwith "StatField expects a Pokémon")

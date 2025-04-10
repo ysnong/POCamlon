@@ -6,28 +6,17 @@ type poketype =
   | Fire
   (* etc. *)
 
-type stat_field =
-  | HP
-  | Attack
-  | Defense
-  | SpecialAtk
-  | SpecialDef
-  | Speed
 
-type stats = {
+type pokerec = {
+  name: string;
+  ptype: poketype;
+  moves: string list;
   hp: int;
   attack: int;
   defense: int;
   special_atk: int;
   special_def: int;
   speed: int;
-}
-
-type pokerec = {
-  name: string;
-  ptype: poketype;
-  moves: string list;
-  stats: stats;
 }
 
 type value =
@@ -52,4 +41,3 @@ type expr =
   | Battle of expr * expr
   | Print of expr
   | StatAll of expr
-  | StatField of expr * stat_field

@@ -17,13 +17,12 @@ rule token = parse
 | "else"               { ELSE } 
 | "print"              { PRINT }
 | "statall"            { STATALL }
-| "statfield"          { STATFIELD }
-| "hp"                 { HP }
+(* | "hp"                 { HP }
 | "attack"             { ATTACK }
 | "defense"            { DEFENSE }
 | "specialatk"         { SPECIALATK }
 | "specialdef"         { SPECIALDEF }
-| "speed"              { SPEED } 
+| "speed"              { SPEED }  *)
 
 | '"' [^ '"']* '"' as s  { 
     (* Grab string without quotes *)
