@@ -24,7 +24,8 @@ rule token = parse
 | "in"       { IN } 
 | "true" { BOOL(true) }
 | "false" { BOOL(false) }
-
+| "type" { TYPE }
+| "|"    { BAR }
 
 | '"' [^ '"']* '"' as s  { 
     (* Grab string without quotes *)

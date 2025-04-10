@@ -56,3 +56,5 @@ and expr =
   | App of expr * expr      (* function call: f x *)
   | TypeOf of expr
   | String of string
+  | TypeDecl of string * (string list) (* i.e. type pokeitem = Potion | Pokeball *)
+  | Constructor of string

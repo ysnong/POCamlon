@@ -1,4 +1,5 @@
 open Ast
+open Global_env
 
 (* pretty printer types *)
 let rec string_of_typ t =
@@ -157,3 +158,15 @@ let rec infer (env : type_env) (e : expr) : tp =
         if t_param = t_arg then t_result
         else raise (TypeError "Function argument type mismatch")
     | _ -> raise (TypeError "Attempted to call a non-function") *)
+  | TypeDecl (_, _) ->
+    raise (TypeError "Type declarations are not expressions")
+
+  | Constructor name ->
+      (* Try to find the type this constructor belongs to *)
+      let matching_type =
+        StringMap.bindings !user_types
+        |> List.find_opt (fun (_, ctors) -> List.mem name ctors)
+      in
+      match matching_type with
+      | Some (typename, _) -> TVar typename  (* Optional: could define a new variant like TCustom typename *)
+      | None -> raise (TypeError ("Unknown constructor: " ^ name))
