@@ -26,6 +26,7 @@ type tp =
   | TPoketype of poketype
   | TList of tp list
   | TPokemon of pokerec
+  | TConstr of string * value list
 
 type env = (string * tp) list
   
@@ -41,3 +42,5 @@ type expr =
   | Battle of expr * expr
   | Print of expr
   | StatAll of expr
+  | TypeDef of (string * (string * expr list) list) * expr
+  | Constr of string * expr list

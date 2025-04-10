@@ -22,7 +22,11 @@ rule token = parse
 | "defense"            { DEFENSE }
 | "specialatk"         { SPECIALATK }
 | "specialdef"         { SPECIALDEF }
-| "speed"              { SPEED }  *)
+| "speed"              { SPEED } *)
+| "type" { TYPE }
+| "of"   { OF }
+| "in"   { IN }
+| "|"    { BAR }
 
 | '"' [^ '"']* '"' as s  { 
     (* Grab string without quotes *)

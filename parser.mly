@@ -5,6 +5,8 @@
 %token LET BATTLE POKEMON
 %token ELECTRIC WATER FIRE
 %token STATALL
+%token HP ATTACK DEFENSE SPECIALATK SPECIALDEF SPEED
+%token TYPE OF IN BAR
 %token <int> INT
 %token <string> STRING
 %token <string> IDENT
@@ -47,7 +49,7 @@ expr:
 | expr EQQ expr     { Primop("==", $1, $3) }
 | IF expr THEN expr ELSE expr  { If($2, $4, $6) }
 | STATALL expr { StatAll($2) }
-
+| STATFIELD expr stat_field { StatField($2, $3) }
 
 type_name:
 | ELECTRIC { Electric }
