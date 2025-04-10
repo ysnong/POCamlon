@@ -19,16 +19,16 @@ type pokerec = {
   speed: int;
 }
 
-type value =
-  | VInt of int
-  | VString of string
-  | VBool of bool
-  | VPoketype of poketype
-  | VList of value list
-  | VPokemon of pokerec
-  | VConstr of string * value list
+type tp =
+  | TInt of int
+  | TString of string
+  | TBool of bool
+  | TPoketype of poketype
+  | TList of tp list
+  | TPokemon of pokerec
+  | TConstr of string * value list
 
-type env = (string * value) list
+type env = (string * tp) list
   
 type expr =
   | Int of int
