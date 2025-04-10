@@ -12,6 +12,9 @@ rule token = parse
 | "Electric"           { ELECTRIC }
 | "Water"              { WATER }
 | "Fire"               { FIRE }
+| "if"                 { IF } 
+| "then"               { THEN } 
+| "else"               { ELSE } 
 | "print"              { PRINT }
 | "statall"            { STATALL }
 | "statfield"          { STATFIELD }
@@ -38,6 +41,12 @@ rule token = parse
 | ','   { COMMA }
 | '('   { LPAREN }
 | ')'   { RPAREN }
+| "+"    { PLUS }
+| "-"    { MINUS }
+| "*"    { TIMES }
+| "<"    { LT }
+| ">"    { GT }
+| "=="   { EQQ }
 | '.'   { DOT }
 | eof { EOF }
 

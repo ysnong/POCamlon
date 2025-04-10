@@ -1,40 +1,29 @@
 open Ast
-
-type stats = {
-  hp: int;
-  attack: int;
-  defense: int;
-  special_atk: int;
-  special_def: int;
-  speed: int;
-}
-
-type pokerec = {
-  name: string;
-  ptype: poketype;
-  moves: string list;
-  stats: stats;
-}
-
-type value =
-  | VInt of int
-  | VString of string
-  | VPoketype of poketype
-  | VList of value list
-  | VPokemon of pokerec
-
-type env = (string * value) list
+open Eval_op
 
 let rec eval (env: env) (e: expr) : (env * value) =
   match e with
 
   | Int n ->
     (env, VInt n)
-
+  | Bool b ->
+    (env, VBool b)
   | Var x ->
     (match List.assoc_opt x env with
      | Some v -> (env, v)
      | None -> failwith ("Unbound variable: " ^ x))
+
+  | If(cond, e1, e2) ->
+    let (_, v_cond) = eval env cond in
+    (match v_cond with
+     | VBool true -> eval env e1
+     | VBool false-> eval env e2  
+     | _ -> failwith "Condition is not VBool")
+
+  | Primop(op, e1, e2) ->
+    let (_, v1) = eval env e1 in
+    let (_, v2) = eval env e2 in
+    (env, eval_op op v1 v2)
 
   | Let(x, rhs, _) ->
     let (env', v) = eval env rhs in
@@ -84,6 +73,7 @@ let rec eval (env: env) (e: expr) : (env * value) =
     (match v with
     | VInt n -> Printf.printf "%d\n" n; (env, VInt n)  (* Print integer *)
     | VString s -> Printf.printf "%s\n" s; (env, VString s)  (* Print string *)
+    | VBool b -> Printf.printf "%s\n" (string_of_bool b); (env, VBool b)
     | _ -> failwith "Print expects an integer or string.")  (* Error for other types *)
   
   | StatAll e1 ->
