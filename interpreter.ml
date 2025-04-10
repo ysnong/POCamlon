@@ -1,7 +1,7 @@
 open Ast
 open Eval_op
 
-let rec eval (env: env) (e: expr) : (env * value) =
+let rec eval ?(type_env=[]) (env: env) (e: expr) : (env * value) =
   match e with
 
   | Int n ->
@@ -76,6 +76,14 @@ let rec eval (env: env) (e: expr) : (env * value) =
     | VInt n -> Printf.printf "%d\n" n; (env, VInt n)  (* Print integer *)
     | VString s -> Printf.printf "%s\n" s; (env, VString s)  (* Print string *)
     | VBool b -> Printf.printf "%s\n" (string_of_bool b); (env, VBool b)
+    | VConstr (name, vals) ->
+      let contents = List.map (function
+        | VInt n -> string_of_int n
+        | VString s -> "\"" ^ s ^ "\""
+        | _ -> "..."
+      ) vals |> String.concat ", " in
+      Printf.printf "%s(%s)\n" name contents;
+      (env, VConstr (name, vals))
     | _ -> failwith "Print expects an integer or string.")  (* Error for other types *)
   
   | StatAll e1 ->
@@ -88,3 +96,11 @@ let rec eval (env: env) (e: expr) : (env * value) =
         p.special_atk p.special_def p.speed;
       (env, VInt 0)
     | _ -> failwith "StatAll expects a Pokémon")
+
+  | TypeDef ((name, variants), body) ->
+    let new_type_env = (name, variants) :: type_env in
+    eval ~type_env:new_type_env env body 
+
+  | Constr (name, args) ->
+    let values = List.map (fun e -> snd (eval ~type_env env e)) args in
+    (env, VConstr (name, values))

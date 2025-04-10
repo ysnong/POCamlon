@@ -26,6 +26,7 @@ type value =
   | VPoketype of poketype
   | VList of value list
   | VPokemon of pokerec
+  | VConstr of string * value list
 
 type env = (string * value) list
   
@@ -41,3 +42,5 @@ type expr =
   | Battle of expr * expr
   | Print of expr
   | StatAll of expr
+  | TypeDef of (string * (string * expr list) list) * expr
+  | Constr of string * expr list
