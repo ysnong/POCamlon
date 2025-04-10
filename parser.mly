@@ -16,6 +16,8 @@
 %token EOF
 %token FUN ARROW
 %token TYPEOF
+%token IN
+%token <bool> BOOL
 
 %left EQQ
 %left LT GT
@@ -52,6 +54,9 @@ expr:
 | FUN IDENT ARROW expr { Fun($2, $4) }
 | expr expr            { App($1, $2) }
 | TYPEOF expr     { TypeOf($2) }
+| LET IDENT EQ expr IN expr { Let($2, $4, $6) }
+| BOOL { Bool $1 }
+| STRING { String $1 }
 
 
 type_name:

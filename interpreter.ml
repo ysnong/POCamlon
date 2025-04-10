@@ -10,6 +10,7 @@ let string_of_value t =
   | VPokemon p -> p.name
   | VList _ -> "haha"
   | VPoketype _ -> "<type>"
+let type_env = ref Infer.StringMap.empty
 
 let rec eval (env: env) (e: expr) : (env * value) =
   match e with
@@ -22,6 +23,8 @@ let rec eval (env: env) (e: expr) : (env * value) =
     (match List.assoc_opt x env with
      | Some v -> (env, v)
      | None -> failwith ("Unbound variable: " ^ x))
+  | String s ->
+  (env, VString s)
 
   | If(cond, e1, e2) ->
     let (_, v_cond) = eval env cond in
@@ -35,9 +38,12 @@ let rec eval (env: env) (e: expr) : (env * value) =
     let (_, v2) = eval env e2 in
     (env, eval_op op v1 v2)
 
-  | Let(x, rhs, _) ->
-    let (_, v) = eval env rhs in
-    ((x, v) :: env, v)
+  | Let(x, rhs, body) ->
+    let t_rhs = Infer.infer !type_env rhs in
+    type_env := Infer.StringMap.add x t_rhs !type_env;
+    let (env_rhs, v_rhs) = eval env rhs in
+    let env' = (x, v_rhs) :: env_rhs in
+    eval env' body
 
   | PokeMon(name, ptype, moves, hp) ->
     let poke = {name; ptype; moves; hp; 
@@ -80,6 +86,7 @@ let rec eval (env: env) (e: expr) : (env * value) =
           let updated_env = (name2, VPokemon new_p2) :: List.remove_assoc name2 env'' in
           (updated_env, VPokemon new_p2)
       | _ -> failwith "battle requires two Pokémon.")
+      
   | Print e ->  (* Handling Print expression *)
     let (_, v) = eval env e in  (* Evaluate the expression inside Print *)
     (match v with
@@ -112,4 +119,7 @@ let rec eval (env: env) (e: expr) : (env * value) =
          (env, result)
      | _ -> failwith "Trying to apply non-function")
 
-  | TypeOf(e) -> failwith "Not Implemented"
+  | TypeOf e ->
+    let t = Infer.infer !type_env e in
+    Printf.printf "[DEBUG] Type inferred: %s\n" (Infer.string_of_typ t);
+    (env, VString (Infer.string_of_typ t))

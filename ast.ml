@@ -27,6 +27,7 @@ type tp =
 | TList of tp
 | TPokemon
 | TVar of string
+| TFun of tp * tp
 
 type value =
   | VInt of int
@@ -54,3 +55,4 @@ and expr =
   | Fun of string * expr    (* fun x -> expr *)
   | App of expr * expr      (* function call: f x *)
   | TypeOf of expr
+  | String of string

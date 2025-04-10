@@ -5,6 +5,7 @@
 
 rule token = parse
 | [' ' '\t' '\n' '\r'] { token lexbuf }  (* skip whitespace *)
+| "\"" ([^ '"' '\n']* as s) "\"" { STRING s }
 
 | "let"                { LET }
 | "battle"             { BATTLE }
@@ -20,6 +21,9 @@ rule token = parse
 | "fun" { FUN }
 | "->"  { ARROW }
 | "typeof"  { TYPEOF }
+| "in"       { IN } 
+| "true" { BOOL(true) }
+| "false" { BOOL(false) }
 
 
 | '"' [^ '"']* '"' as s  { 
@@ -30,7 +34,7 @@ rule token = parse
 
 | ['0'-'9']+ as digits { INT (int_of_string digits) }
 
-| ['a'-'z' 'A'-'Z' '_']+ as id { IDENT id }
+| ['a'-'z' 'A'-'Z' '_'] ['a'-'z' 'A'-'Z' '0'-'9' '_']* as id { IDENT id }
 
 | '='   { EQ }
 | '['   { LBRACKET }
