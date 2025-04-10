@@ -1,32 +1,6 @@
 open Ast
 open Eval_op
 
-type stats = {
-  hp: int;
-  attack: int;
-  defense: int;
-  special_atk: int;
-  special_def: int;
-  speed: int;
-}
-
-type pokerec = {
-  name: string;
-  ptype: poketype;
-  moves: string list;
-  stats: stats;
-}
-
-type value =
-  | VInt of int
-  | VString of string
-  | VBool of bool
-  | VPoketype of poketype
-  | VList of value list
-  | VPokemon of pokerec
-
-type env = (string * value) list
-
 let rec eval (env: env) (e: expr) : (env * value) =
   match e with
 
@@ -99,7 +73,7 @@ let rec eval (env: env) (e: expr) : (env * value) =
     (match v with
     | VInt n -> Printf.printf "%d\n" n; (env, VInt n)  (* Print integer *)
     | VString s -> Printf.printf "%s\n" s; (env, VString s)  (* Print string *)
-    | VBool b -> Printf.printf "%s\n" s; (env, VString s)
+    | VBool b -> Printf.printf "%s\n" (string_of_bool b); (env, VBool b)
     | _ -> failwith "Print expects an integer or string.")  (* Error for other types *)
   
   | StatAll e1 ->
