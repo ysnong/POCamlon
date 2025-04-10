@@ -1,15 +1,16 @@
 open Ast
 open Eval_op
 
-let string_of_value t =
+let rec string_of_value t =
   match t with
   | VInt n -> string_of_int n
   | VBool b -> string_of_bool b
   | VString s -> s
   | VFun _ -> "<function>"
   | VPokemon p -> p.name
-  | VList _ -> "haha"
+  | VList lst -> "[" ^ String.concat "; " (List.map string_of_value lst) ^ "]"
   | VPoketype _ -> "<type>"
+
 let type_env = ref Infer.StringMap.empty
 
 let rec eval (env: env) (e: expr) : (env * value) =
@@ -38,12 +39,9 @@ let rec eval (env: env) (e: expr) : (env * value) =
     let (_, v2) = eval env e2 in
     (env, eval_op op v1 v2)
 
-  | Let(x, rhs, body) ->
-    let t_rhs = Infer.infer !type_env rhs in
-    type_env := Infer.StringMap.add x t_rhs !type_env;
-    let (env_rhs, v_rhs) = eval env rhs in
-    let env' = (x, v_rhs) :: env_rhs in
-    eval env' body
+  | Let(x, rhs, _) ->
+    let (_, v) = eval env rhs in
+    ((x, v) :: env, v)
 
   | PokeMon(name, ptype, moves, hp) ->
     let poke = {name; ptype; moves; hp; 

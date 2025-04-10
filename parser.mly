@@ -35,29 +35,30 @@ command:
 | expr { $1 }
 
 expr:
+| simple_expr { $1 }
+| expr simple_expr { App($1, $2) }
+
+simple_expr:
 | INT { Int $1 }
 | IDENT { Var $1 }
-| POKEMON STRING type_name LBRACKET move_list RBRACKET INT
-  { PokeMon($2, $3, $5, $7) }
+| POKEMON STRING type_name LBRACKET move_list RBRACKET INT { PokeMon($2, $3, $5, $7) }
 | BATTLE expr expr { Battle($2, $3) }
-| expr DOT IDENT { FieldAccess($1, $3) }
+| simple_expr DOT IDENT { FieldAccess($1, $3) }
 | LPAREN expr RPAREN { $2 }
 | PRINT expr { Print $2 }
-| expr PLUS expr   { Primop("+", $1, $3) }
-| expr MINUS expr  { Primop("-", $1, $3) }
-| expr TIMES expr  { Primop("*", $1, $3) }
-| expr LT expr     { Primop("<", $1, $3) }
-| expr GT expr     { Primop(">", $1, $3) }
-| expr EQQ expr     { Primop("==", $1, $3) }
-| IF expr THEN expr ELSE expr  { If($2, $4, $6) }
+| simple_expr PLUS simple_expr { Primop("+", $1, $3) }
+| simple_expr MINUS simple_expr { Primop("-", $1, $3) }
+| simple_expr TIMES simple_expr { Primop("*", $1, $3) }
+| simple_expr LT simple_expr { Primop("<", $1, $3) }
+| simple_expr GT simple_expr { Primop(">", $1, $3) }
+| simple_expr EQQ simple_expr { Primop("==", $1, $3) }
+| IF expr THEN expr ELSE expr { If($2, $4, $6) }
 | STATALL expr { StatAll($2) }
 | FUN IDENT ARROW expr { Fun($2, $4) }
-| expr expr            { App($1, $2) }
-| TYPEOF expr     { TypeOf($2) }
+| TYPEOF expr { TypeOf($2) }
 | LET IDENT EQ expr IN expr { Let($2, $4, $6) }
 | BOOL { Bool $1 }
 | STRING { String $1 }
-
 
 type_name:
 | ELECTRIC { Electric }
