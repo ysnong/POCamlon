@@ -4,7 +4,7 @@ type poketype =
   | Electric 
   | Water
   | Fire
-  (* etc. *)
+(* can add more later *)
 
 
 type pokerec = {
@@ -52,9 +52,9 @@ and expr =
   | Battle of expr * expr
   | Print of expr
   | StatAll of expr
-  | Fun of string * expr    (* fun x -> expr *)
-  | App of expr * expr      (* function call: f x *)
+  | Fun of string * expr   
+  | App of expr * expr     
   | TypeOf of expr
   | String of string
-  | TypeDecl of string * (string list) (* i.e. type pokeitem = Potion | Pokeball *)
+  | TypeDecl of string * (string list) 
   | Constructor of string

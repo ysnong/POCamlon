@@ -33,7 +33,7 @@ main:
 | command EOF { $1 }
 
 command:
-| LET IDENT EQ expr { Let($2, $4, Int 0) }  (* e.g. let pikachu = ... *)
+| LET IDENT EQ expr { Let($2, $4, Int 0) }  (* todo let pikachu = ... *)
 | expr { $1 }
 
 expr:
@@ -87,4 +87,4 @@ type_name:
 move_list:
 | STRING { [$1] }
 | move_list COMMA STRING { $1 @ [$3] }
-| /* empty */ { [] }    (* allow an empty list *)
+| /* empty */ { [] }  

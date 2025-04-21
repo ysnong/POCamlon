@@ -5,7 +5,7 @@ let rec repl env =
   flush stdout;
   try
     let line = input_line stdin in
-    (* End executing when exit/quit command *)
+    (* end executing when exit/quit command *)
     if String.trim line = "exit" || String.trim line = "quit" then
       (print_endline "Goodbye, trainer!"; env)
     else

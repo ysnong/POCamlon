@@ -57,7 +57,7 @@ let rec unify (t1 : tp) (t2 : tp) : subst =
   | _ ->
       raise (TypeError "Cannot unify types")
 
-(* Fresh type variables for polymorphism*)
+(* variables for polymorphism*)
 let counter = ref 0
 let fresh_var () =
   let id = "t" ^ string_of_int !counter in
@@ -149,6 +149,7 @@ let rec infer (env : type_env) (e : expr) : tp =
     let s = unify t1 (TFun(t2, t_ret)) in
     apply_subst s t_ret
   (*
+    Old App
   | App (e1, e2) ->
     let t_fun = infer env e1 in
     let t_arg = infer env e2 in
@@ -158,15 +159,15 @@ let rec infer (env : type_env) (e : expr) : tp =
         if t_param = t_arg then t_result
         else raise (TypeError "Function argument type mismatch")
     | _ -> raise (TypeError "Attempted to call a non-function") *)
+
   | TypeDecl (_, _) ->
     raise (TypeError "Type declarations are not expressions")
 
   | Constructor name ->
-      (* Try to find the type this constructor belongs to *)
       let matching_type =
         StringMap.bindings !user_types
         |> List.find_opt (fun (_, ctors) -> List.mem name ctors)
       in
       match matching_type with
-      | Some (typename, _) -> TVar typename  (* Optional: could define a new variant like TCustom typename *)
+      | Some (typename, _) -> TVar typename 
       | None -> raise (TypeError ("Unknown constructor: " ^ name))

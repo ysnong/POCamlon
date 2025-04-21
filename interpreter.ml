@@ -88,13 +88,13 @@ let rec eval (env: env) (e: expr) : (env * value) =
           (updated_env, VPokemon new_p2)
       | _ -> failwith "battle requires two Pokémon.")
       
-  | Print e ->  (* Handling Print expression *)
-    let (_, v) = eval env e in  (* Evaluate the expression inside Print *)
+  | Print e ->  
+    let (_, v) = eval env e in 
     (match v with
-    | VInt n -> Printf.printf "%d\n" n; (env, VInt n)  (* Print integer *)
-    | VString s -> Printf.printf "%s\n" s; (env, VString s)  (* Print string *)
+    | VInt n -> Printf.printf "%d\n" n; (env, VInt n)  
+    | VString s -> Printf.printf "%s\n" s; (env, VString s) 
     | VBool b -> Printf.printf "%s\n" (string_of_bool b); (env, VBool b)
-    | _ -> failwith "Print expects an integer or string.")  (* Error for other types *)
+    | _ -> failwith "Print expects an integer or string.")  
   
   | StatAll e1 ->
   let (_, v) = eval env e1 in
@@ -130,7 +130,6 @@ let rec eval (env: env) (e: expr) : (env * value) =
     (env, VString name)
 
   | Constructor s ->
-    (* Find the type s belongs to *)
     let found_type =
       StringMap.bindings !user_types
       |> List.find_opt (fun (_, ctors) -> List.mem s ctors)
